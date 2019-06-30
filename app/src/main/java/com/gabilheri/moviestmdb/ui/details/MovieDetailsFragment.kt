@@ -1,13 +1,13 @@
 package com.gabilheri.moviestmdb.ui.details
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v17.leanback.app.DetailsSupportFragment
+import android.support.v17.leanback.widget.*
 import com.gabilheri.moviestmdb.data.models.Movie
 import com.gabilheri.moviestmdb.App
-import android.support.v17.leanback.widget.ArrayObjectAdapter
-import android.support.v17.leanback.widget.DetailsOverviewLogoPresenter
-import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter
 import com.gabilheri.moviestmdb.data.models.MovieDetails
 import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI
 import javax.inject.Inject
@@ -15,18 +15,19 @@ import timber.log.Timber
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import com.gabilheri.moviestmdb.Config.API_KEY_URL
-import android.support.v17.leanback.widget.ListRowPresenter
-import android.support.v17.leanback.widget.ListRow
-import android.support.v17.leanback.widget.DetailsOverviewRow
-import android.support.v17.leanback.widget.ClassPresenterSelector
-import android.support.v17.leanback.widget.FullWidthDetailsOverviewSharedElementHelper
+import android.support.v4.app.FragmentActivity
+import android.support.v4.content.ContextCompat
 import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
+import com.gabilheri.moviestmdb.R
+import com.gabilheri.moviestmdb.data.models.CreditsResponse
+import com.gabilheri.moviestmdb.data.models.MovieResponse
+import com.gabilheri.moviestmdb.ui.details.person.PersonPresenter
+import com.gabilheri.moviestmdb.ui.movies.MoviePresenter
 
 
 /**
@@ -43,6 +44,11 @@ class MovieDetailsFragment : DetailsSupportFragment() {
     private lateinit var movieDetails: MovieDetails
     private lateinit var mAdapter: ArrayObjectAdapter
     private lateinit var mDetailsOverviewRow: DetailsOverviewRow
+
+
+    private val mCastAdapter = ArrayObjectAdapter(PersonPresenter())
+    private val recommendAdapter = ArrayObjectAdapter(MoviePresenter())
+
 
     companion object {
         const val TRANSITION_NAME = "poster_transition"
@@ -65,6 +71,8 @@ class MovieDetailsFragment : DetailsSupportFragment() {
         movie = arguments!!.getParcelable<Parcelable>(Movie::class.java.simpleName) as Movie
         setUpAdapter()
         setUpDetailsOverviewRow()
+        setupCastMembers()
+        setUpRecommend()
     }
 
     /**
@@ -87,6 +95,16 @@ class MovieDetailsFragment : DetailsSupportFragment() {
         classPresenterSelector.addClassPresenter(ListRow::class.java, ListRowPresenter())
         mAdapter = ArrayObjectAdapter(classPresenterSelector)
         adapter = mAdapter
+
+        mFullWidthMovieDetailsPresenter.actionsBackgroundColor = ContextCompat.getColor(fragmentActivity, R.color.primary_dark)
+        mFullWidthMovieDetailsPresenter.backgroundColor = ContextCompat.getColor(fragmentActivity, R.color.primary)
+    }
+
+    private lateinit var fragmentActivity: Activity
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        fragmentActivity = context as Activity
     }
 
 
@@ -132,9 +150,50 @@ class MovieDetailsFragment : DetailsSupportFragment() {
                 })
     }
 
+    private fun setupCastMembers() {
+        mAdapter.add(ListRow(HeaderItem(0, "Cast"), mCastAdapter))
+        fetchCastMembers()
+    }
+
+    private fun setUpRecommend() {
+        mAdapter.add(ListRow(HeaderItem(1, "Similer Video"), recommendAdapter))
+        fetchRecommendations()
+    }
+
+
+    private fun fetchRecommendations() {
+        mDbAPI.getRecommendations(movie.getId(), API_KEY_URL)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    bindRecommendations(it)
+                }, {
+                    Timber.e(it, "Error fetching recommendations: %s", it.localizedMessage);
+                })
+    }
+
+    private fun bindRecommendations(response: MovieResponse) {
+        recommendAdapter.addAll(0, response.results)
+    }
+
+    private fun bindCastMembers(response: CreditsResponse) {
+        mCastAdapter.addAll(0, response.cast)
+    }
+
+    private fun fetchCastMembers() {
+        mDbAPI.getCredits(movie.getId(), API_KEY_URL)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    this.bindCastMembers(it)
+                }, {
+                    Timber.e(it, "Error fetching data: %s", it.localizedMessage)
+                })
+    }
+
     private fun bindMovieDetails(movieDetails: MovieDetails) {
         this.movieDetails = movieDetails
         mDetailsOverviewRow.item = this.movieDetails
-
     }
+
 }

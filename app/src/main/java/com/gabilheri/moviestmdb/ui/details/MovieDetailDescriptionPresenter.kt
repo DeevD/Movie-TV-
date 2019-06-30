@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gabilheri.moviestmdb.R
 import com.gabilheri.moviestmdb.data.models.MovieDetails
+import timber.log.Timber
 
 /**
  * Created by Hein Htet on 2019-06-30.
@@ -15,9 +16,8 @@ class MovieDetailDescriptionPresenter : Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder?, item: Any?) {
-        if (item is MovieDetails) {
-            (viewHolder as MovieDetailViewHolder).bind(item)
-        }
+        Timber.d("MovieDetail Presenter ${item.toString()}")
+        (viewHolder as MovieDetailViewHolder).bind(item as MovieDetails)
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder?) {

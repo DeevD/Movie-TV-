@@ -19,33 +19,45 @@ import java.util.*
 class MovieDetailViewHolder(private val itemView: View) : Presenter.ViewHolder(itemView) {
 
 
+
+
+
+    var movieTitleTV: TextView
+
+
+    var movieYearTV: TextView
+
+
+    var movieOverview: TextView
+
+
+    var mRuntimeTV: TextView
+
+
+    var mTaglineTV: TextView
+
+
+    var mDirectorTv: TextView
+
+
+    var mOverviewLabelTV: TextView
+
+
+    var mGenresLayout: LinearLayout
+
+
     init {
-        ButterKnife.bind(this, itemView)
+        movieTitleTV = itemView.findViewById(R.id.movie_title)
+        movieYearTV = itemView.findViewById(R.id.movie_year)
+        movieOverview = itemView.findViewById(R.id.overview)
+        mRuntimeTV = itemView.findViewById(R.id.runtime)
+        mTaglineTV = itemView.findViewById(R.id.tagline)
+        mDirectorTv = itemView.findViewById(R.id.director_tv)
+        mOverviewLabelTV = itemView.findViewById(R.id.overview_label)
+        mGenresLayout = itemView.findViewById(R.id.genres)
+
+
     }
-
-    @BindView(R.id.movie_title)
-    lateinit var movieTitleTV: TextView
-
-    @BindView(R.id.movie_year)
-    lateinit var movieYearTV: TextView
-
-    @BindView(R.id.overview)
-    lateinit var movieOverview: TextView
-
-    @BindView(R.id.runtime)
-    lateinit var mRuntimeTV: TextView
-
-    @BindView(R.id.tagline)
-    lateinit var mTaglineTV: TextView
-
-    @BindView(R.id.director_tv)
-    lateinit var mDirectorTv: TextView
-
-    @BindView(R.id.overview_label)
-    lateinit var mOverviewLabelTV: TextView
-
-    @BindView(R.id.genres)
-    lateinit var mGenresLayout: LinearLayout
 
 
     fun bind(movie: MovieDetails) {
@@ -57,7 +69,7 @@ class MovieDetailViewHolder(private val itemView: View) : Presenter.ViewHolder(i
             movieOverview.text = movie.overview
             mGenresLayout.removeAllViews()
 
-            if (movie.director != null) {
+             if (movie.director != null) {
                 mDirectorTv.text = String.format(Locale.getDefault(), "Director: %s", movie.director)
             }
 
