@@ -17,6 +17,7 @@ import rx.schedulers.Schedulers
 import com.gabilheri.moviestmdb.Config.API_KEY_URL
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.widget.Toast
 import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -95,9 +96,15 @@ class MovieDetailsFragment : DetailsSupportFragment() {
         classPresenterSelector.addClassPresenter(ListRow::class.java, ListRowPresenter())
         mAdapter = ArrayObjectAdapter(classPresenterSelector)
         adapter = mAdapter
-
         mFullWidthMovieDetailsPresenter.actionsBackgroundColor = ContextCompat.getColor(fragmentActivity, R.color.primary_dark)
         mFullWidthMovieDetailsPresenter.backgroundColor = ContextCompat.getColor(fragmentActivity, R.color.primary)
+        mFullWidthMovieDetailsPresenter.setOnActionClickedListener {
+            when(it.id){
+                1L ->{
+                  Toast.makeText(fragmentActivity,"CLICK WATCH TRAILER",Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private lateinit var fragmentActivity: Activity
@@ -113,6 +120,9 @@ class MovieDetailsFragment : DetailsSupportFragment() {
      */
     private fun setUpDetailsOverviewRow() {
         mDetailsOverviewRow = DetailsOverviewRow(MovieDetails())
+        val actionAdapter = SparseArrayObjectAdapter()
+        actionAdapter.set(1,Action(1,"WATCH TRAILER"))
+        mDetailsOverviewRow.actionsAdapter = actionAdapter
         mAdapter.add(mDetailsOverviewRow)
         loadImage(HttpClientModule.POSTER_URL + movie.posterPath)
         fetchMovieDetails()
@@ -123,7 +133,6 @@ class MovieDetailsFragment : DetailsSupportFragment() {
             mDetailsOverviewRow.imageDrawable = resource
         }
     }
-
     /**
      * Loads the poster image into the DetailsOverviewRow
      * @param url
