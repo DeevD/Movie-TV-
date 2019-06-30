@@ -5,6 +5,7 @@ import com.gabilheri.moviestmdb.App;
 import com.gabilheri.moviestmdb.dagger.AppScope;
 import com.gabilheri.moviestmdb.dagger.modules.ApplicationModule;
 import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule;
+import com.gabilheri.moviestmdb.ui.details.MovieDetailsFragment;
 import com.gabilheri.moviestmdb.ui.main.MainFragment;
 
 import javax.inject.Singleton;
@@ -25,7 +26,7 @@ import dagger.Component;
         HttpClientModule.class,
 })
 public interface ApplicationComponent {
-
     void inject(App app);
     void inject(MainFragment mainFragment);
+    void inject(MovieDetailsFragment fragment);
 }

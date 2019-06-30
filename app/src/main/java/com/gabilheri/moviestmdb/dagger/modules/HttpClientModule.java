@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -45,7 +46,7 @@ public class HttpClientModule {
     public static final String TV = "tv/";
 
     @Provides
-    @AppScope
+    @Singleton
     public OkHttpClient provideOkHttpClient(Application app) {
         File cacheDir = new File(app.getCacheDir(), "http");
         return new OkHttpClient.Builder()
@@ -57,9 +58,8 @@ public class HttpClientModule {
     }
 
     @Provides
-    @Named("TVDB") // Name is used in case a second Retrofit api is provided.
-    @AppScope
-    public Retrofit provideTVDBRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
+    @Singleton
+    Retrofit provideTVDBRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         okHttpClient = okHttpClient.newBuilder()
@@ -74,12 +74,13 @@ public class HttpClientModule {
     }
 
     @Provides
-    public TheMovieDbAPI provideFithubApi(@Named("movieDB") Retrofit restAdapter) {
+    @Singleton
+    public TheMovieDbAPI provideFithubApi(Retrofit restAdapter) {
         return restAdapter.create(TheMovieDbAPI.class);
     }
 
     @Provides
-    @AppScope
+    @Singleton
     public MoshiConverterFactory provideMoshiConverterFactory() {
         return MoshiConverterFactory.create();
     }
